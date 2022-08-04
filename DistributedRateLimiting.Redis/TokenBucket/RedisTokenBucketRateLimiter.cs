@@ -3,7 +3,7 @@ using StackExchange.Redis;
 using System.Diagnostics;
 using System.Threading.RateLimiting;
 
-namespace DistributedRateLimiting.Redis;
+namespace DistributedRateLimiting.Redis.TokenBucket;
 
 public sealed class RedisTokenBucketRateLimiter : RateLimiter
 {
@@ -18,10 +18,10 @@ public sealed class RedisTokenBucketRateLimiter : RateLimiter
 
     public override TimeSpan? IdleDuration => _idleTimer.Elapsed;
 
-    public RedisTokenBucketRateLimiter(IOptions<RedisTokenBucketRateLimiterOptions> options)
+    public RedisTokenBucketRateLimiter(IConnectionMultiplexer connectionMultiplexer, RedisTokenBucketRateLimiterOptions options)
     {
-        _options = options.Value;
-        _redis = _options.CreateConnectionMultiplexer();
+        _options = options;
+        _redis = connectionMultiplexer;
         _db = _redis.GetDatabase(_options.DatabaseId);
         _acquireScript = LuaScript.Prepare(GetAcquireLuaScript(_options.Capacity, _options.FillRate));
     }

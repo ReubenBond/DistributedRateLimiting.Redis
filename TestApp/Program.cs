@@ -5,17 +5,31 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Orleans.Hosting;
+using StackExchange.Redis;
 using System.Net;
 using System.Threading.RateLimiting;
 
-var options = Options.Create(new RedisTokenBucketRateLimiterOptions() { Capacity = 100, FillRate = 10 });
-var limiter = new RedisTokenBucketRateLimiter(options);
+var connectionMultiplexer = await ConnectionMultiplexer.ConnectAsync("localhost");
+Func<string, RateLimiter> createRateLimiter = key =>
+{
+    return new RedisTokenBucketRateLimiter(connectionMultiplexer, new RedisTokenBucketRateLimiterOptions() { Capacity = 100, FillRate = 10, DatabaseKey = $"rate_limiter_bucket:{key}" });
+};
+
+var rl = PartitionedRateLimiter.Create<string, string>(resource =>
+{
+    return RateLimitPartition.Create(resource, createRateLimiter);
+});
+
+
+var options = new RedisTokenBucketRateLimiterOptions() { Capacity = 100, FillRate = 10 };
+var limiter = new RedisTokenBucketRateLimiter(connectionMultiplexer, options);
 
 while (true)
 {
-    var result = await limiter.WaitAsync(1);
-    var permits = limiter.GetAvailablePermits();
-    Console.WriteLine($"{result} (remaining: {permits})");
+    Console.WriteLine($"fish: {await rl.WaitAsync("fish")} (remaining: {rl.GetAvailablePermits("fish")})");
+    //var result = await limiter.WaitAsync(1);
+    //var permits = limiter.GetAvailablePermits();
+    //Console.WriteLine($"{result} (remaining: {permits})");
     await Task.Delay(100);
 }
 /*

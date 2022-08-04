@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Threading.RateLimiting;
 
-namespace DistributedRateLimiting.Redis;
+namespace DistributedRateLimiting.Redis.TokenBucket;
 
 internal sealed class RedisTokenBucketRateLimiterLease : RateLimitLease
 {
@@ -20,7 +20,7 @@ internal sealed class RedisTokenBucketRateLimiterLease : RateLimitLease
         return false;
     }
 
-    public override string? ToString() => IsAcquired switch 
+    public override string? ToString() => IsAcquired switch
     {
         true => $"{nameof(RedisTokenBucketRateLimiterLease)} (IsAcquired: true)",
         _ => "{nameof(RedisTokenBucketRateLimiterLease)} (IsAcquired: false)"

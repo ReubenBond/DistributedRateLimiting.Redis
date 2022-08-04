@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 
-namespace DistributedRateLimiting.Redis;
+namespace DistributedRateLimiting.Redis.TokenBucket;
 
 public class RedisTokenBucketRateLimiterOptions
 {
@@ -8,8 +8,6 @@ public class RedisTokenBucketRateLimiterOptions
     /// Gets or sets the Redis database id.
     /// </summary>
     public int DatabaseId { get; set; } = -1;
-
-    public Func<IConnectionMultiplexer> CreateConnectionMultiplexer { get; set; } = () => ConnectionMultiplexer.Connect("localhost");
 
     /// <summary>
     /// The maximum number of tokens in a bucket.
@@ -20,4 +18,9 @@ public class RedisTokenBucketRateLimiterOptions
     /// The number of tokens to insert into each bucket per second.
     /// </summary>
     public double FillRate { get; set; }
+
+    /// <summary>
+    /// The key in the database to use to store rate limiting information.
+    /// </summary>
+    public string DatabaseKey { get; set; } = "rate_limiter_bucket:default";
 }

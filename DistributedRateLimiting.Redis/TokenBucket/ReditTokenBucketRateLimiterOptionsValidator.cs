@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 
-namespace DistributedRateLimiting.Redis;
+namespace DistributedRateLimiting.Redis.TokenBucket;
 
 internal sealed class RedisTokenBucketRateLimiterOptionsValidator : IValidateOptions<RedisTokenBucketRateLimiterOptions>
 {

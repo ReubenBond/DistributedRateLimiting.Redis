@@ -24,4 +24,8 @@
     <PackageReference Include="System.Threading.RateLimiting" Version="7.0.0-preview.5.22301.12" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SloppyDecay\" />
+  </ItemGroup>
+
 </Project>
