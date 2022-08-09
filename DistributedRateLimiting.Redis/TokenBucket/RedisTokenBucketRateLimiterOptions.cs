@@ -1,14 +1,11 @@
-﻿using StackExchange.Redis;
+﻿using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using StackExchange.Redis.Profiling;
 
 namespace DistributedRateLimiting.Redis.TokenBucket;
 
-public class RedisTokenBucketRateLimiterOptions
+public class RedisTokenBucketRateLimiterOptions : IOptions<RedisTokenBucketRateLimiterOptions>
 {
-    /// <summary>
-    /// Gets or sets the Redis database id.
-    /// </summary>
-    public int DatabaseId { get; set; } = -1;
-
     /// <summary>
     /// The maximum number of tokens in a bucket.
     /// </summary>
@@ -20,7 +17,34 @@ public class RedisTokenBucketRateLimiterOptions
     public double FillRate { get; set; }
 
     /// <summary>
-    /// The key in the database to use to store rate limiting information.
+    /// The configuration used to connect to Redis.
     /// </summary>
-    public string DatabaseKey { get; set; } = "rate_limiter_bucket:default";
+    public string? Configuration { get; set; }
+
+    /// <summary>
+    /// The configuration used to connect to Redis.
+    /// If specified, this takes precedence over <see cref="Configuration"/>.
+    /// </summary>
+    public ConfigurationOptions? ConfigurationOptions { get; set; }
+
+    /// <summary>
+    /// Gets or sets a delegate to create the ConnectionMultiplexer instance.
+    /// If specified, this takes precedence over <see cref="Configuration"/> and <see cref="ConfigurationOptions"/>.
+    /// </summary>
+    public Func<Task<IConnectionMultiplexer>>? ConnectionMultiplexerFactory { get; set; }
+
+    /// <summary>
+    /// The Redis instance name.
+    /// </summary>
+    public string? InstanceName { get; set; }
+
+    /// <summary>
+    /// The Redis profiling session
+    /// </summary>
+    public Func<ProfilingSession>? ProfilingSession { get; set; }
+
+    RedisTokenBucketRateLimiterOptions IOptions<RedisTokenBucketRateLimiterOptions>.Value
+    {
+        get { return this; }
+    }
 }

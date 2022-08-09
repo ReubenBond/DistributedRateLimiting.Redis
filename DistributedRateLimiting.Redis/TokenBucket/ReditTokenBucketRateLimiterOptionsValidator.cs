@@ -11,9 +11,9 @@ internal sealed class RedisTokenBucketRateLimiterOptionsValidator : IValidateOpt
             return ValidateOptionsResult.Fail($"{nameof(RedisTokenBucketRateLimiterOptions.FillRate)} must not be negative");
         }
 
-        if (options.CreateConnectionMultiplexer is null)
+        if (options.Configuration is not { Length: > 0 } && options.ConfigurationOptions is null && options.ConnectionMultiplexerFactory is null)
         {
-            return ValidateOptionsResult.Fail($"{nameof(RedisTokenBucketRateLimiterOptions.CreateConnectionMultiplexer)} must not be null");
+            return ValidateOptionsResult.Fail($"One of {nameof(RedisTokenBucketRateLimiterOptions.Configuration)}, {nameof(RedisTokenBucketRateLimiterOptions.ConfigurationOptions)}, or {nameof(RedisTokenBucketRateLimiterOptions.ConnectionMultiplexerFactory)} must be specified");
         }
 
         return ValidateOptionsResult.Success;

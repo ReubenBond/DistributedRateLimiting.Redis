@@ -4,7 +4,7 @@ using System.Threading.RateLimiting;
 
 namespace DistributedRateLimiting.Redis.TokenBucket;
 
-public sealed class RedisTokenBucketRateLimiter : RateLimiter
+public sealed class PartitionedRedisTokenBucketRateLimiter : PartitionedRateLimiter<string>
 {
     private static readonly RateLimitLease SuccessfulLease = new RedisTokenBucketRateLimiterLease(isAcquired: true);
     private static readonly RateLimitLease FailedLease = new RedisTokenBucketRateLimiterLease(isAcquired: false);
@@ -15,44 +15,35 @@ public sealed class RedisTokenBucketRateLimiter : RateLimiter
     private IConnectionMultiplexer? _connection;
     private IDatabase? _store;
     private bool _disposed;
-    private volatile int _estimatedRemainingPermits;
 
-    public override TimeSpan? IdleDuration => _idleTimer.Elapsed;
-
-    public RedisTokenBucketRateLimiter(RedisTokenBucketRateLimiterOptions options)
+    public PartitionedRedisTokenBucketRateLimiter(RedisTokenBucketRateLimiterOptions options)
     {
         _options = options;
         _acquireScript = LuaScript.Prepare(GetAcquireLuaScript(_options.Capacity, _options.FillRate));
     }
-    public override int GetAvailablePermits()
+
+    public override int GetAvailablePermits(string resourceID)
     {
-        _idleTimer.Restart();
-        return _estimatedRemainingPermits;
+        return 0;
     }
 
-    protected override RateLimitLease AcquireCore(int permitCount)
+    protected override RateLimitLease AcquireCore(string resourceID, int permitCount)
     {
         _idleTimer.Restart();
         return FailedLease;
     }
 
-    protected override async ValueTask<RateLimitLease> WaitAsyncCore(int permitCount, CancellationToken cancellationToken)
+    protected override async ValueTask<RateLimitLease> WaitAsyncCore(string resourceID, int permitCount, CancellationToken cancellationToken)
     {
         _idleTimer.Restart();
         await ConnectAsync(cancellationToken).ConfigureAwait(false);
         Debug.Assert(_store is not null);
 
-        var rawResult = await _store.ScriptEvaluateAsync(_acquireScript, new { BucketId = _options.InstanceName, PermitCount = permitCount }).ConfigureAwait(false);
+        var rawResult = await _store.ScriptEvaluateAsync(_acquireScript, new { BucketId = _options.InstanceName + resourceID, PermitCount = permitCount }).ConfigureAwait(false);
         var result = (int[])rawResult!;
         if (result is null or { Length: 0 })
         {
-            _estimatedRemainingPermits = 0;
             return FailedLease;
-        }
-
-        if (result is { Length: >= 2 })
-        {
-            _estimatedRemainingPermits = result[1];
         }
 
         if (result[0] != 1)
@@ -196,7 +187,6 @@ public sealed class RedisTokenBucketRateLimiter : RateLimiter
             _connectionLock.Release();
         }
     }
-
 
     private void PrepareConnection()
     {

@@ -23,6 +23,6 @@ internal sealed class RedisTokenBucketRateLimiterLease : RateLimitLease
     public override string? ToString() => IsAcquired switch
     {
         true => $"{nameof(RedisTokenBucketRateLimiterLease)} (IsAcquired: true)",
-        _ => "{nameof(RedisTokenBucketRateLimiterLease)} (IsAcquired: false)"
+        _ => $"{nameof(RedisTokenBucketRateLimiterLease)} (IsAcquired: false)"
     };
 }
