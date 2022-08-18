@@ -2,9 +2,9 @@
 using StackExchange.Redis;
 using StackExchange.Redis.Profiling;
 
-namespace System.Threading.RateLimiting.StackExchangeRedis.TokenBucket;
+namespace System.Threading.RateLimiting.StackExchangeRedis.ApproximateTokenBucket;
 
-public class RedisTokenBucketRateLimiterOptions : IOptions<RedisTokenBucketRateLimiterOptions>
+public class RedisApproximateTokenBucketRateLimiterOptions : IOptions<RedisApproximateTokenBucketRateLimiterOptions>
 {
     private TimeSpan _replenishmentPeriod = TimeSpan.FromSeconds(1);
     private int _tokensPerPeriod;
@@ -38,9 +38,24 @@ public class RedisTokenBucketRateLimiterOptions : IOptions<RedisTokenBucketRateL
     }
 
     /// <summary>
-    /// The maximum number of tokens in a bucket.
+    /// Maximum number of tokens that can be in the bucket at any time.
+    /// Must be set to a value > 0 by the time these options are passed to the constructor of <see cref="RedisApproximateTokenBucketRateLimiter"/>.
     /// </summary>
     public int TokenLimit { get; set; }
+
+    /// <summary>
+    /// Determines the behaviour of <see cref="RateLimiter.AcquireAsync"/> when not enough resources can be leased.
+    /// </summary>
+    /// <value>
+    /// <see cref="QueueProcessingOrder.OldestFirst"/> by default.
+    /// </value>
+    public QueueProcessingOrder QueueProcessingOrder { get; set; } = QueueProcessingOrder.OldestFirst;
+
+    /// <summary>
+    /// Maximum cumulative token count of queued acquisition requests on each instance.
+    /// Must be set to a value >= 0 by the time these options are passed to the constructor of <see cref="RedisApproximateTokenBucketRateLimiter"/>.
+    /// </summary>
+    public int QueueLimit { get; set; }
 
     /// <summary>
     /// The configuration used to connect to Redis.
@@ -69,7 +84,7 @@ public class RedisTokenBucketRateLimiterOptions : IOptions<RedisTokenBucketRateL
     /// </summary>
     public Func<ProfilingSession>? ProfilingSession { get; set; }
 
-    RedisTokenBucketRateLimiterOptions IOptions<RedisTokenBucketRateLimiterOptions>.Value
+    RedisApproximateTokenBucketRateLimiterOptions IOptions<RedisApproximateTokenBucketRateLimiterOptions>.Value
     {
         get { return this; }
     }

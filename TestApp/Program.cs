@@ -1,16 +1,38 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using DistributedRateLimiting.Redis.TokenBucket;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.Threading.RateLimiting.StackExchangeRedis.ApproximateTokenBucket;
+using System.Threading.RateLimiting.StackExchangeRedis.TokenBucket;
 
-var rl = new PartitionedRedisTokenBucketRateLimiter(new RedisTokenBucketRateLimiterOptions() { Capacity = 100, FillRate = 10, Configuration = "localhost" });
+/*
+var services = new ServiceCollection().AddLogging(logging => logging.AddConsole()).BuildServiceProvider();
+//var rl = new PartitionedRedisTokenBucketRateLimiter(new RedisTokenBucketRateLimiterOptions() { Capacity = 100, FillRate = 10, Configuration = "localhost" });
+var rl2 = new RedisApproximateTokenBucketRateLimiter(new RedisApproximateTokenBucketRateLimiterOptions()
+{
+    ReplenishmentPeriod = TimeSpan.FromSeconds(0.1),
+    TokensPerPeriod = 1,
+    TokenLimit = 100,
+    QueueLimit = 100,
+    InstanceName = "default",
+    Configuration = "localhost",
+},
+services.GetRequiredService<ILogger<RedisApproximateTokenBucketRateLimiter>>());
+
+*/
+var services = new ServiceCollection().AddLogging(logging => logging.AddConsole()).BuildServiceProvider();
+var logger = services.GetRequiredService<ILogger<Program>>();
+
+Console.WriteLine(logger.IsEnabled(LogLevel.Debug));
 
 while (true)
 {
-    Console.WriteLine($"fish: {await rl.WaitAsync("fish")} (remaining: {rl.GetAvailablePermits("fish")})");
+    //Console.WriteLine($"fish: {await rl.WaitAsync("fish")} (remaining: {rl.GetAvailablePermits("fish")})");
+ //   Console.WriteLine($"{await rl2.WaitAsync()} ({rl2})");
     //var result = await limiter.WaitAsync(1);
     //var permits = limiter.GetAvailablePermits();
     //Console.WriteLine($"{result} (remaining: {permits})");
-    await Task.Delay(100);
+    await Task.Delay(200);
 }
 /*
 var hostBuilder = Host.CreateDefaultBuilder(args);

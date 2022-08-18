@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedRateLimiting.Redis\DistributedRateLimiting.Redis.csproj" />
+    <ProjectReference Include="..\DistributedRateLimiting.Redis\System.Threading.RateLimiting.StackExchangeRedis.csproj" />
   </ItemGroup>
 
 </Project>

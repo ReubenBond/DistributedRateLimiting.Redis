@@ -1,9 +1,9 @@
 ﻿using StackExchange.Redis;
 using System.Diagnostics;
-using System.Threading.RateLimiting;
 
-namespace DistributedRateLimiting.Redis.TokenBucket;
+namespace System.Threading.RateLimiting.StackExchangeRedis.TokenBucket;
 
+/*
 public sealed class PartitionedRedisTokenBucketRateLimiter : PartitionedRateLimiter<string>
 {
     private static readonly RateLimitLease SuccessfulLease = new RedisTokenBucketRateLimiterLease(isAcquired: true);
@@ -19,7 +19,7 @@ public sealed class PartitionedRedisTokenBucketRateLimiter : PartitionedRateLimi
     public PartitionedRedisTokenBucketRateLimiter(RedisTokenBucketRateLimiterOptions options)
     {
         _options = options;
-        _acquireScript = LuaScript.Prepare(GetAcquireLuaScript(_options.Capacity, _options.FillRate));
+        _acquireScript = LuaScript.Prepare(GetAcquireLuaScript(_options.TokenLimit, _options.FillRate));
     }
 
     public override int GetAvailablePermits(string resourceID)
@@ -197,7 +197,7 @@ public sealed class PartitionedRedisTokenBucketRateLimiter : PartitionedRateLimi
     {
         if (_disposed)
         {
-            throw new ObjectDisposedException(this.GetType().FullName);
+            throw new ObjectDisposedException(GetType().FullName);
         }
     }
     private void TryRegisterProfiler()
@@ -210,3 +210,4 @@ public sealed class PartitionedRedisTokenBucketRateLimiter : PartitionedRateLimi
         }
     }
 }
+*/

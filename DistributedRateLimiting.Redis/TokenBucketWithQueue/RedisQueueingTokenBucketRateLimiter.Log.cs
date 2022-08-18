@@ -1,0 +1,15 @@
+﻿using Microsoft.Extensions.Logging;
+
+namespace System.Threading.RateLimiting.StackExchangeRedis.TokenBucketWithQueue;
+
+public sealed partial class RedisQueueingTokenBucketRateLimiter
+{
+    private static partial class Log
+    {
+        [LoggerMessage(1, LogLevel.Error, "Could not connect to Redis.", EventName = "CouldNotConnectToRedis")]
+        public static partial void CouldNotConnectToRedis(ILogger logger, Exception exception);
+
+        [LoggerMessage(2, LogLevel.Error, "Error evaluating Redis script.", EventName = "ErrorEvaluatingRedisScript")]
+        public static partial void ErrorEvaluatingRedisScript(ILogger logger, Exception exception);
+    }
+}

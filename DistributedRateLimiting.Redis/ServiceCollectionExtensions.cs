@@ -1,9 +1,9 @@
-﻿using DistributedRateLimiting.Redis.TokenBucket;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System.Threading.RateLimiting;
+using System.Threading.RateLimiting.StackExchangeRedis.ApproximateTokenBucket;
+using System.Threading.RateLimiting.StackExchangeRedis.TokenBucket;
 
-namespace DistributedRateLimiting.Redis;
+namespace System.Threading.RateLimiting.StackExchangeRedis;
 
 public static class ServiceCollectionExtensions
 {
@@ -13,7 +13,15 @@ public static class ServiceCollectionExtensions
             .AddOptions<RedisTokenBucketRateLimiterOptions>()
             .Configure(configureOptions);
         services.AddSingleton<RateLimiter, RedisTokenBucketRateLimiter>();
-        services.AddTransient<IValidateOptions<RedisTokenBucketRateLimiterOptions>, RedisTokenBucketRateLimiterOptionsValidator>();
+        return services;
+    }
+
+    public static IServiceCollection AddRedisApproximateTokenBucketRateLimiter(this IServiceCollection services, Action<RedisApproximateTokenBucketRateLimiterOptions> configureOptions)
+    {
+        services
+            .AddOptions<RedisApproximateTokenBucketRateLimiterOptions>()
+            .Configure(configureOptions);
+        services.AddSingleton<RateLimiter, RedisApproximateTokenBucketRateLimiter>();
         return services;
     }
 }
